@@ -1,0 +1,26 @@
+{
+  "name": "origin",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Check an image for Content Credentials. Reads cryptographic provenance, in your browser.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "deploy": "astro build && wrangler deploy",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "astro": "^7.3.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "wrangler": "^4.131.1"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "workerd": true
+  },
+  "dependencies": {
+    "@contentauth/c2pa-web": "^0.14.5"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "origin",
+  "compatibility_date": "2026-09-01",
+  // Static assets only. All the work happens in the visitor's browser, so
+  // there is no server side code at all.
+  "assets": { "directory": "./dist" }
+}
