@@ -1,0 +1,712 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Origin: check who made an image, and whether AI was involved"
+  description="Reads the Content Credentials attached to a photo and shows who signed it, what they claim, and what changed since. Runs in your browser. Nothing is uploaded."
+  path="/"
+>
+  <section class="hero">
+    <div class="wrap">
+      <p class="private-badge">Runs in your browser, nothing is uploaded</p>
+      <h1>Who actually made this image?</h1>
+      <p class="lede">
+        Cameras from Leica and Sony, and tools from Adobe and OpenAI, now attach a signed record to
+        the files they produce. Drop an image here and Origin reads that record: who signed it, what
+        they say it is, and whether it has been changed since.
+      </p>
+
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose an image to check">
+        <input type="file" id="file" accept="image/*" hidden />
+        <div class="drop-inner">
+          <span class="drop-mark" aria-hidden="true"></span>
+          <p class="drop-title">Drop an image, or click to choose one</p>
+          <p class="drop-note">JPEG, PNG, WEBP, AVIF and TIFF. Large files are fine, they are read locally.</p>
+        </div>
+      </div>
+
+      <p class="try">
+        No signed image to hand?
+        <button type="button" id="try-sample">Try a signed example</button>
+        <span class="try-note">A test file from the C2PA project.</span>
+      </p>
+
+      {/* Stated before any result appears, not after. A tool that reads as an
+          AI detector will be believed as one, so the limit comes first. */}
+      <div class="honesty">
+        <h2>What this can and cannot tell you</h2>
+        <div class="honesty-grid">
+          <div>
+            <h3>It can prove</h3>
+            <p>
+              That a named signer attached specific claims to this exact file, and whether a single
+              byte has changed since. That part is cryptography, not opinion.
+            </p>
+          </div>
+          <div>
+            <h3>It cannot prove</h3>
+            <p>
+              That the claims are true. A credential says what its signer says. It is only worth as
+              much as your trust in whoever signed it.
+            </p>
+          </div>
+          <div>
+            <h3>It is not an AI detector</h3>
+            <p>
+              Nothing here guesses. If a file has no credentials, the honest answer is that we know
+              nothing about it, and that is what you will be told.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="result" hidden aria-live="polite"></section>
+
+  <section class="wrap article">
+    <h2>What are Content Credentials?</h2>
+    <p>
+      They are a tamper evident record attached to a file, built on an open standard called C2PA. The
+      record lists what the file is, what was done to it, and which software or device was involved.
+      The whole thing is signed, so any later change to the pixels breaks the signature and can be
+      detected.
+    </p>
+    <p>
+      The point is not to catch fakes. It is to let honest files carry their own history, so a photo
+      from a news agency can show where it came from rather than asking you to take it on faith.
+    </p>
+
+    <h2>Who adds them</h2>
+    <ul class="who">
+      <li><strong>Cameras</strong> Leica M11-P and SL3-S, Sony Alpha bodies with the firmware enabled, some Nikon models.</li>
+      <li><strong>Editing tools</strong> Adobe Photoshop and Lightroom, when Content Credentials are switched on.</li>
+      <li><strong>AI generators</strong> OpenAI image output, Adobe Firefly, Microsoft Designer, Google tools using SynthID alongside C2PA.</li>
+      <li><strong>Platforms</strong> LinkedIn displays them, and others are adding support.</li>
+    </ul>
+
+    <h2>Why most images have nothing</h2>
+    <p>
+      Adoption is early. Most phone cameras do not sign, most apps strip metadata when saving, and
+      every social platform that re-encodes an upload destroys the credential unless it deliberately
+      preserves it. A missing credential is the normal case, not a red flag.
+    </p>
+    <p>
+      This is the part other tools get wrong. An image with no credentials is not suspicious. It is
+      just an ordinary file, and no tool, including this one, can tell you how it was made.
+    </p>
+
+    <h2>What a broken signature means</h2>
+    <p>
+      If a file carries credentials but the check fails, something changed after signing. Often that
+      is innocent, such as a resize or a re-save by software that did not understand the credential.
+      It does mean the claims can no longer be trusted for that file, because they describe a
+      version of it that no longer exists.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding: 52px 0 8px;
+  }
+
+  h1 {
+    margin: 18px 0 16px;
+    max-width: 16ch;
+  }
+
+  .lede {
+    color: var(--muted);
+    font-size: 1.125rem;
+    max-width: 62ch;
+    line-height: 1.55;
+  }
+
+  .drop {
+    margin-top: 30px;
+    border: 2px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 44px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .drop:hover,
+  .drop.is-over {
+    border-color: var(--seal);
+    background: var(--seal-soft);
+  }
+
+  .drop-mark {
+    display: block;
+    width: 34px;
+    height: 34px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--seal);
+    position: relative;
+  }
+
+  .drop-mark::after {
+    content: '';
+    position: absolute;
+    inset: 9px 9px auto auto;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--panel);
+  }
+
+  .drop-title {
+    font-weight: 600;
+    font-size: 1.0625rem;
+  }
+
+  .drop-note {
+    color: var(--faint);
+    font-size: 0.875rem;
+    margin-top: 6px;
+  }
+
+  .try {
+    margin-top: 14px;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+
+  .try button {
+    margin-left: 6px;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--seal);
+    color: var(--seal);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0 0 1px;
+  }
+
+  .try-note {
+    color: var(--faint);
+    font-size: 0.8125rem;
+    margin-left: 6px;
+  }
+
+  .honesty {
+    margin-top: 40px;
+    border-top: 1px solid var(--line);
+    padding-top: 26px;
+  }
+
+  .honesty h2 {
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .honesty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 22px;
+    margin-top: 18px;
+  }
+
+  .honesty h3 {
+    font-size: 0.9375rem;
+  }
+
+  .honesty p {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .article {
+    padding-top: 60px;
+  }
+
+  .article h2 {
+    font-size: 1.375rem;
+    margin-top: 36px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .article h2:first-child {
+    margin-top: 0;
+  }
+
+  .article p {
+    margin-top: 14px;
+    color: var(--ink-soft);
+    max-width: 68ch;
+  }
+
+  .who {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .who li {
+    background: var(--panel);
+    padding: 13px 17px;
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+  }
+
+  .who strong {
+    display: block;
+  }
+</style>
+
+<style is:global>
+  /* The result is built at runtime, so these cannot be scoped. */
+  .result-head {
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+    padding-top: 48px;
+  }
+
+  .thumb {
+    width: 128px;
+    height: 128px;
+    flex: none;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--sunk) repeating-linear-gradient(45deg, #f0efe9, #f0efe9 6px, #e8e6dd 6px, #e8e6dd 12px);
+    object-fit: contain;
+  }
+
+  .verdict {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .verdict-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  .v-none .verdict-tag {
+    background: var(--neutral-soft);
+    color: var(--neutral);
+  }
+  .v-tampered .verdict-tag {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .v-ai-generated .verdict-tag,
+  .v-ai-assisted .verdict-tag {
+    background: var(--ai-soft);
+    color: var(--ai);
+  }
+  .v-camera .verdict-tag {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .v-edited .verdict-tag,
+  .v-signed .verdict-tag {
+    background: var(--seal-soft);
+    color: var(--seal);
+  }
+
+  .verdict h2 {
+    font-size: 1.625rem;
+    margin: 12px 0 10px;
+    letter-spacing: -0.03em;
+  }
+
+  .verdict-why {
+    color: var(--muted);
+    max-width: 64ch;
+  }
+
+  /* The confidence line is never optional. It is the honest caveat, so it sits
+     with the verdict rather than somewhere further down the page. */
+  .confidence {
+    margin-top: 14px;
+    font-size: 0.875rem;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--sunk);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 26px;
+  }
+
+  .fact {
+    background: var(--panel);
+    padding: 14px 16px 16px;
+    min-width: 0;
+  }
+
+  .fact-label {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .fact-value {
+    margin-top: 6px;
+    font-size: 0.9375rem;
+    word-break: break-word;
+  }
+
+  /* The chain of custody, which is the thing worth looking at. */
+  .chain {
+    list-style: none;
+    margin: 26px 0 0;
+    padding: 0 0 0 22px;
+    position: relative;
+  }
+
+  .chain::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--line);
+  }
+
+  .chain li {
+    position: relative;
+    padding: 9px 0;
+  }
+
+  .chain li::before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: 16px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 2px solid var(--seal);
+  }
+
+  .chain-label {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .chain-soft {
+    color: var(--faint);
+    font-size: 0.8125rem;
+  }
+
+  .section-title {
+    margin-top: 32px;
+    font-size: 1.0625rem;
+  }
+
+  .warn-soft {
+    background: var(--seal-soft) !important;
+    color: var(--seal) !important;
+  }
+
+  .warn-list {
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-size: 0.875rem;
+    list-style: none;
+  }
+
+  .raw {
+    margin-top: 26px;
+  }
+
+  .raw summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  .raw pre {
+    margin-top: 12px;
+    background: var(--ink);
+    color: #d9d6c9;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.7;
+    max-height: 420px;
+  }
+
+  .loading,
+  .failure {
+    margin-top: 48px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+  }
+
+  .spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid var(--line-strong);
+    border-top-color: var(--seal);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex: none;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .result-head {
+      flex-direction: column;
+    }
+    .thumb {
+      width: 100%;
+      height: 180px;
+    }
+  }
+</style>
+
+<script>
+  import { interpret, type Reading } from '../lib/provenance';
+
+  const drop = document.getElementById('drop')!;
+  const input = document.getElementById('file') as HTMLInputElement;
+  const result = document.getElementById('result')!;
+
+  const TAGS: Record<Reading['verdict'], string> = {
+    none: 'nothing found',
+    tampered: 'signature failed',
+    'ai-generated': 'ai generated',
+    'ai-assisted': 'partly ai',
+    camera: 'captured',
+    edited: 'edited',
+    signed: 'signed',
+  };
+
+  const CONFIDENCE: Record<Reading['confidence'], string> = {
+    proven:
+      'This one is mathematical. The signature covers the exact bytes of the file, and they no longer match.',
+    claimed:
+      'This is what the signer states, not something we checked independently. It is only as trustworthy as the signer.',
+    unknown: 'No credentials means no information. Treat this as neither evidence for nor against anything.',
+  };
+
+  function esc(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function show(html: string): void {
+    result.hidden = false;
+    result.innerHTML = html;
+  }
+
+  function fact(label: string, value: string | null): string {
+    if (!value) return '';
+    return `<div class="fact"><div class="fact-label">${label}</div><div class="fact-value">${esc(value)}</div></div>`;
+  }
+
+  function render(reading: Reading, thumbUrl: string, fileName: string, raw: unknown): string {
+    const chain = reading.steps.length
+      ? `<h3 class="section-title">What was done to it</h3>
+         <ol class="chain">${reading.steps
+           .map(
+             (s) => `<li><div class="chain-label">${esc(s.label)}</div>${
+               s.software ? `<div class="chain-soft">${esc(s.software)}</div>` : ''
+             }</li>`,
+           )
+           .join('')}</ol>`
+      : '';
+
+    const ingredients = reading.ingredients.length
+      ? `<h3 class="section-title">Built from</h3><ol class="chain">${reading.ingredients
+          .map((i) => `<li><div class="chain-label">${esc(i)}</div></li>`)
+          .join('')}</ol>`
+      : '';
+
+    // Styled by severity: a certificate we do not recognise is a caution, an
+    // altered file is a hard failure. Showing both in red would say the same
+    // thing about two very different situations.
+    const warnClass = reading.verdict === 'tampered' ? 'warn-list' : 'warn-list warn-soft';
+    const warnings = reading.warnings.length
+      ? `<ul class="${warnClass}">${reading.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>`
+      : '';
+
+    const TRUST: Record<Reading['signerTrust'], string | null> = {
+      trusted: 'Recognised certificate',
+      unrecognised: 'Not on the trust list',
+      expired: 'Certificate expired',
+      revoked: 'Certificate revoked',
+    };
+
+    const training =
+      reading.aiTraining === 'not-allowed'
+        ? 'The creator marked this as not available for AI training'
+        : reading.aiTraining === 'allowed'
+          ? 'The creator allows AI training on this'
+          : null;
+
+    return `
+      <div class="result-head v-${reading.verdict}">
+        <img class="thumb" src="${esc(thumbUrl)}" alt="" />
+        <div class="verdict">
+          <span class="verdict-tag">${TAGS[reading.verdict]}</span>
+          <h2>${esc(reading.headline)}</h2>
+          <p class="verdict-why">${esc(reading.explanation)}</p>
+          <p class="confidence">${esc(CONFIDENCE[reading.confidence])}</p>
+        </div>
+      </div>
+      ${warnings}
+      <div class="facts">
+        ${fact('File', fileName)}
+        ${fact('Signed by', reading.signer?.issuer ?? null)}
+        ${fact('Certificate', reading.signer ? TRUST[reading.signerTrust] : null)}
+        ${fact('Signed at', reading.signer?.time ? new Date(reading.signer.time).toLocaleString() : null)}
+        ${fact('Made with', reading.producer)}
+        ${fact('Recorded source', reading.sourceLabel)}
+        ${fact('AI training', training)}
+      </div>
+      ${chain}
+      ${ingredients}
+      ${
+        raw
+          ? `<details class="raw"><summary>Show the raw manifest</summary><pre>${esc(
+              JSON.stringify(raw, null, 2),
+            )}</pre></details>`
+          : ''
+      }`;
+  }
+
+  let sdk: { reader: { fromBlob: (format: string, blob: Blob) => Promise<unknown> } } | null = null;
+
+  /**
+   * The C2PA engine is an 8MB WebAssembly binary, so it is fetched only when
+   * someone actually checks a file. Loading it upfront would make the page
+   * feel broken on a phone for people who never use it.
+   */
+  async function engine() {
+    if (sdk) return sdk;
+    const { createC2pa } = await import('@contentauth/c2pa-web');
+    // No workerSrc: the library then runs its worker from a blob URL, which
+    // works over plain http as well. Pointing workerSrc at our own copy is
+    // only needed under a Content Security Policy that forbids blob workers,
+    // and it rejects any non https URL, which breaks local development.
+    sdk = (await createC2pa({ wasmSrc: '/c2pa/c2pa.wasm' })) as typeof sdk;
+    return sdk;
+  }
+
+  async function check(file: File): Promise<void> {
+    const thumbUrl = URL.createObjectURL(file);
+    show('<div class="loading"><span class="spinner"></span>Reading the file on your device</div>');
+
+    try {
+      const c2pa = await engine();
+      const reader = (await c2pa!.reader.fromBlob(file.type || 'image/jpeg', file)) as {
+        manifestStore: () => Promise<unknown>;
+      } | null;
+
+      if (!reader) {
+        show(render(interpret(null), thumbUrl, file.name, null));
+        return;
+      }
+
+      const store = await reader.manifestStore();
+      show(render(interpret(store as never), thumbUrl, file.name, store));
+    } catch (error) {
+      show(
+        `<div class="failure"><div><strong>Could not read that file.</strong><br />${esc(
+          (error as Error)?.message ?? 'Unknown error',
+        )}</div></div>`,
+      );
+    } finally {
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  document.getElementById('try-sample')?.addEventListener('click', async () => {
+    // Most people have never seen a file with credentials, so the tool would
+    // otherwise only ever show them the "nothing found" result.
+    const response = await fetch('/samples/signed-example.jpg');
+    const blob = await response.blob();
+    void check(new File([blob], 'signed-example.jpg', { type: 'image/jpeg' }));
+  });
+
+  drop.addEventListener('click', () => input.click());
+  drop.addEventListener('keydown', (event) => {
+    if ((event as KeyboardEvent).key === 'Enter' || (event as KeyboardEvent).key === ' ') {
+      event.preventDefault();
+      input.click();
+    }
+  });
+
+  input.addEventListener('change', () => {
+    const file = input.files?.[0];
+    if (file) void check(file);
+  });
+
+  for (const type of ['dragenter', 'dragover']) {
+    drop.addEventListener(type, (e) => {
+      e.preventDefault();
+      drop.classList.add('is-over');
+    });
+  }
+  for (const type of ['dragleave', 'drop']) {
+    drop.addEventListener(type, () => drop.classList.remove('is-over'));
+  }
+
+  drop.addEventListener('drop', (event) => {
+    event.preventDefault();
+    const file = (event as DragEvent).dataTransfer?.files?.[0];
+    if (file) void check(file);
+  });
+</script>

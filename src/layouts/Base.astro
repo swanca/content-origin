@@ -1,0 +1,71 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+}
+
+const { title, description, path = '/' } = Astro.props;
+const site = Astro.site ?? new URL('https://checkorigin.app');
+const canonical = new URL(path, site).toString();
+const verification = import.meta.env.PUBLIC_GSC_VERIFICATION;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {verification && <meta name="google-site-verification" content={verification} />}
+
+    <meta property="og:site_name" content="Origin" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="theme-color" content="#8a6a2b" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="wrap masthead-inner">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true"></span>
+          Origin
+        </a>
+        <nav class="nav">
+          <a href="/what-are-content-credentials">How it works</a>
+          <a href="/privacy">Privacy</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap" style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
+        <a href="/">Check an image</a>
+        <a href="/what-are-content-credentials">How it works</a>
+        <a href="/privacy">Privacy</a>
+        <span>Your image never leaves your device.</span>
+      </div>
+    </footer>
+  </body>
+</html>

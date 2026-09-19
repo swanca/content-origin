@@ -1,0 +1,275 @@
+/*
+  Origin design tokens.
+
+  The subject is provenance: who signed this, what they claim, what changed
+  since. The visual vernacular is the certificate and the chain of custody, so
+  the ground is warm paper and the brand mark is a bronze seal.
+
+  Colour carries meaning and nothing else here, which matters more than usual
+  because the colours are verdicts about someone's photograph:
+    bronze  = signed, a claim exists
+    magenta = AI was involved
+    red     = the signature does not match the file
+    grey    = no credentials, no conclusion
+*/
+
+:root {
+  --paper: #f5f4f0;
+  --panel: #ffffff;
+  --sunk: #faf9f6;
+  --ink: #1a1a17;
+  --ink-soft: #35342e;
+  --muted: #656256;
+  --faint: #93907f;
+  --line: #e3e0d6;
+  --line-strong: #c9c5b6;
+
+  /* The seal. Used for the mark and for "a signed claim exists". */
+  --seal: #8a6a2b;
+  --seal-soft: #f4efe2;
+
+  /* Synthetic content. Deliberately not red: AI is not automatically bad. */
+  --ai: #a02478;
+  --ai-soft: #fbeef6;
+
+  --danger: #ae3526;
+  --danger-soft: #fbeeec;
+  --ok: #2c6a47;
+  --ok-soft: #ecf4ef;
+  --neutral: #6b6a63;
+  --neutral-soft: #f0efe9;
+
+  --font: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --max: 900px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.14;
+}
+
+h1 {
+  font-size: clamp(2rem, 5.6vw, 3rem);
+  letter-spacing: -0.035em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--line-strong);
+}
+
+a:hover {
+  text-decoration-color: var(--seal);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.8125em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0 22px;
+  height: 46px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+  opacity: 0.88;
+}
+
+.btn-quiet {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.btn-quiet:hover {
+  background: var(--panel);
+  opacity: 1;
+}
+
+.btn-small {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 0.875rem;
+}
+
+/* ---------- chrome ---------- */
+
+.masthead {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 58px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.125rem;
+  text-decoration: none;
+}
+
+/* A wax seal: a disc with a notch pressed out of it. */
+.brand-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--seal);
+  flex: none;
+  position: relative;
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 5px 5px auto auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--panel);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.9375rem;
+}
+
+.nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--ink);
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  margin-top: 72px;
+  padding: 28px 0 44px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.site-footer a {
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--ink);
+}
+
+.private-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--seal-soft);
+  color: var(--seal);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.private-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--seal);
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
